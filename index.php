@@ -28,7 +28,7 @@ class CSVHandler {
         'name' => 'teamliquid'
     ];
 
-    private function db_connection(){
+    protected function db_connection(){
         $server = CSVHandler::DATABASECONFIG['server'];
         $user = CSVHandler::DATABASECONFIG['user'];
         $password = CSVHandler::DATABASECONFIG['password'];
@@ -36,16 +36,27 @@ class CSVHandler {
         $port = CSVHandler::DATABASECONFIG['port'];
 
         $db_connection = new mysqli("$server","$user","$password","$database", "$port");
-        return $db_connection;
+        if(!isset($db_connection)){
+            echo "Connection to db interrupted";
+        }else{
+            return $db_connection;
+        }
     }
 
-    private function insert_data(){
-
+    private function insert_data($get_id, $get_name, $get_title){
+        $insert_data_to_db = $this->db_connection();
+        $insert_query = $insert_data_to_db->query("
+          INSERT INTO `teamliquid`.`testtable` (`thing_id`, `thing_name`, `thing_title`)
+          VALUES ('$get_id','$get_name','$get_title')
+        ");
+        if(isset($insert_query)){
+            return $insert_query;
+        }
     }
 
     private function display_data(){
-        $get_display_data = $this->db_connection();
-        $display_query = $get_display_data->query("SELECT * FROM `teamliquid`.`testtable`");
+        $db_conn = $this->db_connection();
+        $display_query = $db_conn->query("SELECT * FROM `teamliquid`.`testtable`");
         return $display_query;
     }
 
@@ -77,18 +88,19 @@ class CSVHandler {
                     $encode_table_data = json_encode($csv_file_line);
                     $remove_tags_from_tabel_data = str_replace(['"' , "[" , "]"], "", $encode_table_data);
                     $get_table_data_arr = explode(";",$remove_tags_from_tabel_data);
+                    global $pass_data;
                     $html .= '<tr>';
                         foreach ($get_table_data_arr AS $table_data){
-                            $html .= '<td><textarea>'.$table_data.'</textarea></td>';
+                            $html .= '<td><textarea id="output" name="myTextarea" value="'.$table_data.'">'.$table_data.'</textarea></td>';
                         }
+                    $pass_data[] = $get_table_data_arr;
                     $html .= '</tr>';
                 }
             $html .= '</body>';
         $html .= '</table>';
-        $html .= '<input type="submit" name="import" value="Import" onclick="import()"/>';
+        $html .= '<input type="submit" name="import" value="Import"/>';
         $html .= '</form>';
-
-        echo $html;
+        return $html;
 	}
 
 	/**
@@ -96,7 +108,23 @@ class CSVHandler {
 	 */
 	public function import() {
         //Import data to DB (Insert into db)
-
+        if(isset($_POST['import'])){
+            global $pass_data;
+            foreach ($pass_data AS $key => $pass_csv_data){
+                $get_id = $pass_csv_data[0];
+                $get_name = $pass_csv_data[1];
+                $get_title = $pass_csv_data[2];
+                //Here we get data to insert
+                $insert_csv_data = $this->insert_data("$get_id", "$get_name", "$get_title");
+            }
+            if(isset($insert_csv_data)){
+                $call_db_data = $this->makeTableFromDB();
+                echo $call_db_data;
+            }
+        }else{
+            $call_db_data = $this->show();
+            echo $call_db_data;
+        }
 	}
 
 	/**
@@ -106,29 +134,30 @@ class CSVHandler {
         //Once data is imported to db, display all data from DB?
         $result = $this->display_data();
         $html = '<table>';
-            foreach ($result AS $display_db_headers){
-                foreach ($display_db_headers as $keys => $display_db_headers_arr) {
-                    $html .= '<th>' . $keys . '</th>';
-                }
-            }
-//        $html .= '<th>id</th>';
-//        $html .= '<th>author</th>';
-//        $html .= '<th>title</th>';
+            $html .= '<th>ID</th>';
+            $html .= '<th>Name</th>';
+            $html .= '<th>Title</th>';
             $html .= '<body>';
-                $html .= '<tr>';
                     foreach ($result as $get_items) {
+                        $html .= '<tr>';
                         foreach ($get_items as $display_items) {
                             $html .= '<td><textarea>'.$display_items.'</textarea></td>';
                         }
+                        $html .= '<tr>';
                     }
-                $html .= '<tr>';
             $html .= '</body>';
         $html .= '</table>';
-        echo $html;
+        return $html;
 	}
-
 }
 ?><!DOCTYPE html>
+<script>
+//    Insert reload on db data
+    function eraseText() {
+        document.getElementById("output").value = "";
+        console.log("Working")
+    }
+</script>
 <html>
 	<head><title>CSV Handler</title></head>
 	<body>
