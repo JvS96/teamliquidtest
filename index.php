@@ -44,8 +44,8 @@ class CSVHandler {
     }
 
     private function insert_data($get_name, $get_title){
-        $insert_data_to_db = $this->db_connection();
-        $insert_query = $insert_data_to_db->query("
+        $db_conn = $this->db_connection();
+        $insert_query = $db_conn->query("
           INSERT INTO `testtable` (`thing_name`, `thing_title`)
           VALUES ('$get_name','$get_title')
         ");
