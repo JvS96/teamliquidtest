@@ -89,14 +89,14 @@ class CSVHandler {
                     global $pass_data;
                     $html .= '<tr>';
                         foreach ($get_table_data_arr AS $table_data){
-                            $html .= '<td><textarea id="output" name="myTextarea" value="'.$table_data.'">'.$table_data.'</textarea></td>';
+                            $html .= '<td><textarea class="form-control" id="output" name="myTextarea" readonly="">'.$table_data.'</textarea></td>';
                         }
                     $pass_data[] = $get_table_data_arr;
                     $html .= '</tr>';
                 }
             $html .= '</body>';
         $html .= '</table>';
-        $html .= '<input type="submit" name="import" value="Import" onclick="javascript:eraseText()"/>';
+        $html .= '<input class="btn btn-success" type="submit" name="import" value="Import">';
         $html .= '</form>';
         return $html;
 	}
@@ -118,6 +118,9 @@ class CSVHandler {
             if(isset($insert_csv_data)){
                 $call_db_data = $this->makeTableFromDB();
                 echo $call_db_data;
+                echo '<script language="javascript">
+                        alert("Import successfully saved")
+                      </script>';
             }
         }else{
             $call_db_data = $this->show();
@@ -138,26 +141,23 @@ class CSVHandler {
                 foreach ($result as $get_items) {
                     $html .= '<tr>';
                     foreach ($get_items as $display_items) {
-                        $html .= '<td><textarea>'.$display_items.'</textarea></td>';
+                        $html .= '<td><textarea class="form-control" readonly="">'.$display_items.'</textarea></td>';
                     }
                     $html .= '<tr>';
                 }
             $html .= '</body>';
         $html .= '</table>';
+        $html .= '<a href="index.php" class="btn btn-danger">Back</a>';
         return $html;
 	}
 }
 ?><!DOCTYPE html>
-<script>
-//    Insert reload on db data
-    function eraseText() {
-        document.getElementById("output").value = "";
-        console.log("Working")
-    }
-</script>
 <html>
-	<head><title>CSV Handler</title></head>
-	<body>
+	<head>
+        <title>CSV Handler</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    </head>
+	<body style="margin: 2% 0px 0px 2%;">
 		<?php
 
 		if ( isset( $_GET[ 'file' ] ) ) {
