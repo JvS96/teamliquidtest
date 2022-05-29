@@ -37,26 +37,24 @@ class CSVHandler {
 
         $db_connection = new mysqli("$server","$user","$password","$database", "$port");
         if(!isset($db_connection)){
-            echo "Connection to db interrupted";
+            echo "Connection to database interrupted";
         }else{
             return $db_connection;
         }
     }
 
-    private function insert_data($get_id, $get_name, $get_title){
+    private function insert_data($get_name, $get_title){
         $insert_data_to_db = $this->db_connection();
         $insert_query = $insert_data_to_db->query("
-          INSERT INTO `teamliquid`.`testtable` (`thing_id`, `thing_name`, `thing_title`)
-          VALUES ('$get_id','$get_name','$get_title')
+          INSERT INTO `testtable` (`thing_name`, `thing_title`)
+          VALUES ('$get_name','$get_title')
         ");
-        if(isset($insert_query)){
-            return $insert_query;
-        }
+        return $insert_query;
     }
 
     private function display_data(){
         $db_conn = $this->db_connection();
-        $display_query = $db_conn->query("SELECT * FROM `teamliquid`.`testtable`");
+        $display_query = $db_conn->query("SELECT * FROM `testtable`");
         return $display_query;
     }
 
@@ -98,7 +96,7 @@ class CSVHandler {
                 }
             $html .= '</body>';
         $html .= '</table>';
-        $html .= '<input type="submit" name="import" value="Import"/>';
+        $html .= '<input type="submit" name="import" value="Import" onclick="javascript:eraseText()"/>';
         $html .= '</form>';
         return $html;
 	}
@@ -111,11 +109,11 @@ class CSVHandler {
         if(isset($_POST['import'])){
             global $pass_data;
             foreach ($pass_data AS $key => $pass_csv_data){
-                $get_id = $pass_csv_data[0];
+                //Here we get data to insert
                 $get_name = $pass_csv_data[1];
                 $get_title = $pass_csv_data[2];
-                //Here we get data to insert
-                $insert_csv_data = $this->insert_data("$get_id", "$get_name", "$get_title");
+
+                $insert_csv_data = $this->insert_data("$get_name", "$get_title");
             }
             if(isset($insert_csv_data)){
                 $call_db_data = $this->makeTableFromDB();
@@ -131,7 +129,6 @@ class CSVHandler {
 	 * Read data from SQL database and output as html table again
 	 */
 	public function makeTableFromDB() {
-        //Once data is imported to db, display all data from DB?
         $result = $this->display_data();
         $html = '<table>';
             $html .= '<th>ID</th>';
