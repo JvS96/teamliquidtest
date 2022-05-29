@@ -54,7 +54,7 @@ class CSVHandler {
 
     private function display_data(){
         $db_conn = $this->db_connection();
-        $display_query = $db_conn->query("SELECT * FROM `testtable`");
+        $display_query = $db_conn->query("SELECT `thing_id`, `thing_name`, `thing_title` FROM `testtable` LIMIT 50");
         return $display_query;
     }
 
