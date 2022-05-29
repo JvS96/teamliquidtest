@@ -135,13 +135,13 @@ class CSVHandler {
             $html .= '<th>Name</th>';
             $html .= '<th>Title</th>';
             $html .= '<body>';
-                    foreach ($result as $get_items) {
-                        $html .= '<tr>';
-                        foreach ($get_items as $display_items) {
-                            $html .= '<td><textarea>'.$display_items.'</textarea></td>';
-                        }
-                        $html .= '<tr>';
+                foreach ($result as $get_items) {
+                    $html .= '<tr>';
+                    foreach ($get_items as $display_items) {
+                        $html .= '<td><textarea>'.$display_items.'</textarea></td>';
                     }
+                    $html .= '<tr>';
+                }
             $html .= '</body>';
         $html .= '</table>';
         return $html;
